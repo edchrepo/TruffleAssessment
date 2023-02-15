@@ -5,7 +5,13 @@ const Validator = require('jsonschema').Validator;
 const app = express();
 const PORT = 5000;
 
+//setting up middleware parser to properly send requests
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+
 const medicalBills = JSON.parse(data);
+
+//creating JSON schema validator to validate JSON POST requests 
 const v = new Validator();
 
 const billSchema = {
@@ -23,37 +29,32 @@ const billSchema = {
 
 v.addSchema(billSchema, 'Medical Bill');
 
-app.listen(
-    PORT,
-    () => console.log(`Server is running on port: ${5000}`)
-);
-
+// GET /items returns full list of medical bills from stored data.json file
 app.get('/items', (req, res) => {
     res.json(medicalBills);
 });
 
-const data1 = {
-    "name": "11",
-    "address": "22",
-    "hospital": "33",
-    "date": "44",
-    "bill": 55
-}
-
-// console.log(v.validate(data1, billSchema).valid)
+// POST /items validates req data with schema model and updates data.json file
+// by adding valid req data (new medical bill) onto full list of medical bills
 
 app.post('/items', (req, res) => {
-    if (v.validate(data1, billSchema).valid) {
-        medicalBills.push(data1);
+    const billData = req.body;
+    if (v.validate(billData, billSchema).valid) {
+        medicalBills.push(billData);
         const newData = JSON.stringify(medicalBills);
         fs.writeFile("data.json", newData, (err) => {
             if (err) throw err;
             console.log("New data added");
         })
-        res.json(JSON.parse(newData));
+        res.json(medicalBills);
     }
     else {
         res.status(400).json({ message: "Invalid medical bill"})
     }
 });
+
+app.listen(
+    PORT,
+    () => console.log(`Server is running on port: ${5000}`)
+);
 
