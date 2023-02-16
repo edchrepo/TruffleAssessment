@@ -1,6 +1,6 @@
 # TruffleHealth Medical Bill API
 
-> ### Simple medical upload service using Node and Express
+> ### Simple medical bill upload service using Node and Express
 
 # Getting started
 
